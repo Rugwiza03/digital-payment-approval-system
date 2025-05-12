@@ -37,7 +37,7 @@ export default function RequisitionForm() {
       const data = await response.json();
       router.push(`/requisitions/${data.id}`);
     } catch (err) {
-      setError(err.message || 'Something went wrong');
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsSubmitting(false);
     }

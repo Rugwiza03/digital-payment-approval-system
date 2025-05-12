@@ -1,7 +1,9 @@
 import { getSession } from 'next-auth/react';
 import prisma from '../../../lib/db';
 
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -13,7 +15,7 @@ export default async function handler(req, res) {
       const notification = await prisma.notification.update({
         where: {
           id: req.query.id,
-          userId: session.user.id,
+          userId: session.user.email, // Assuming userId is linked to the email
         },
         data: {
           read: true,
@@ -21,7 +23,7 @@ export default async function handler(req, res) {
       });
 
       return res.status(200).json(notification);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else {

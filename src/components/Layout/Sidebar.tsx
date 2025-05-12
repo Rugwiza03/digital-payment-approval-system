@@ -23,7 +23,7 @@ export default function Sidebar() {
         <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
           <nav className="flex-1 px-2 space-y-1">
             {navigation.map((item) => {
-              if (!item.roles.includes(session.user.role)) return null;
+              if (!session.user.role || !item.roles.includes(session.user.role)) return null;
               const current = router.pathname === item.href;
               return (
                 <Link key={item.name} href={item.href}>

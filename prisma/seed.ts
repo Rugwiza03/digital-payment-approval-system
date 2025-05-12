@@ -9,9 +9,6 @@ async function main() {
     data: { name: 'Finance' },
   });
 
-  const itDept = await prisma.department.create({
-    data: { name: 'IT' },
-  });
 
   // Create users
   const adminPassword = await hashPassword('admin123');

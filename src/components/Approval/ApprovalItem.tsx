@@ -1,6 +1,29 @@
 import { useRouter } from 'next/router';
 
-export default function ApprovalItem({ approval, role }) {
+interface Approval {
+  id: string;
+  requisition?: {
+    description?: string;
+    amount?: number;
+    user?: {
+      name?: string;
+    };
+  };
+  voucher?: {
+    reason?: string;
+    amount?: number;
+    preparedBy?: {
+      name?: string;
+    };
+  };
+}
+
+interface ApprovalItemProps {
+  approval: Approval;
+  role: string;
+}
+
+export default function ApprovalItem({ approval, role }: ApprovalItemProps) {
   const router = useRouter();
 
   const handleApprove = async () => {

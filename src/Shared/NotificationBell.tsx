@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNotifications } from '../../context/NotificationContext';
+import { useNotifications } from '../context/NotificationContext';
 
 export default function NotificationBell() {
   const { notifications, unreadCount, markAsRead } = useNotifications();
@@ -52,7 +52,7 @@ export default function NotificationBell() {
                   <p className="font-medium text-gray-900">{notification.title}</p>
                   <p className="text-gray-500">{notification.message}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    {new Date(notification.createdAt).toLocaleString()}
+                    {typeof notification.createdAt === 'string' || typeof notification.createdAt === 'number' ? new Date(notification.createdAt).toLocaleString() : 'Invalid date'}
                   </p>
                 </div>
               ))}

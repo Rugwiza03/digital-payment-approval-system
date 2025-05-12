@@ -1,7 +1,9 @@
 import { getSession } from 'next-auth/react';
 import prisma from '../../../lib/db';
 
-export default async function handler(req, res) {
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req });
 
   if (!session) {
@@ -12,7 +14,7 @@ export default async function handler(req, res) {
     try {
       const notifications = await prisma.notification.findMany({
         where: {
-          userId: session.user.id,
+          userId: session.user.email, // Assuming email is used as a unique identifier
         },
         orderBy: {
           createdAt: 'desc',
@@ -22,13 +24,13 @@ export default async function handler(req, res) {
 
       const unreadCount = await prisma.notification.count({
         where: {
-          userId: session.user.id,
+          userId: session.user.email,
           read: false,
         },
       });
 
       return res.status(200).json({ notifications, unreadCount });
-    } catch (error) {
+    } catch {
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else {

@@ -3,8 +3,18 @@ import { useSession } from 'next-auth/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import Header from '../src/components/Layout/Header';
-import Sidebar from '../src/components/Layout/Sidebar';
+import Header from '../components/Layout/Header';
+import Sidebar from '../components/Layout/Sidebar';
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      role?: string | null; // Add the role property
+    };
+  }
+}
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -38,8 +48,8 @@ export default function Dashboard() {
               <h2 className="text-lg font-medium text-gray-900">Dashboard</h2>
               <div className="mt-4">
                 <div className="bg-white shadow rounded-lg p-6">
-                  <p>Welcome, {session.user.name}!</p>
-                  <p className="mt-2">Your role: {session.user.role}</p>
+                  <p>Welcome, {session.user?.name || 'Guest'}!</p>
+                  <p className="mt-2">Your role: {session.user?.role || 'Unknown'}</p>
                   {/* Add dashboard content based on role */}
                 </div>
               </div>

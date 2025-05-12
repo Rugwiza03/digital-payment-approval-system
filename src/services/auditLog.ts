@@ -5,7 +5,7 @@ export async function logAction(
   action: string,
   entity: string,
   entityId: string,
-  metadata?: any
+ // metadata?: any 
 ) {
   try {
     await prisma.auditLog.create({
@@ -14,7 +14,7 @@ export async function logAction(
         entity,
         entityId,
         userId,
-        metadata: metadata || undefined,
+       // metadata: metadata || undefined,
       },
     });
   } catch (error) {

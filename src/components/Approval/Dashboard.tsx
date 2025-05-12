@@ -1,10 +1,15 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import ApprovalItem from './ApprovalItem';
+import ApprovalItem from './ApprovalItem'; // Adjust the import path as necessary
 
 export default function ApprovalDashboard() {
   const { data: session } = useSession();
-  const [pendingApprovals, setPendingApprovals] = useState([]);
+  interface Approval {
+    id: string; // Adjust the type of 'id' and other fields as necessary
+    [key: string]: unknown; // Add other fields if needed
+  }
+
+  const [pendingApprovals, setPendingApprovals] = useState<Approval[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +53,7 @@ export default function ApprovalDashboard() {
       ) : (
         <ul className="divide-y divide-gray-200">
           {pendingApprovals.map((approval) => (
-            <ApprovalItem key={approval.id} approval={approval} role={session.user.role} />
+            <ApprovalItem key={approval.id} approval={approval} role={session?.user?.role || ''} />
           ))}
         </ul>
       )}

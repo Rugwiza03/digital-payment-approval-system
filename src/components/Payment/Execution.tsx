@@ -1,7 +1,12 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
-export default function PaymentExecution({ voucher }) {
+interface Voucher {
+  id: string;
+  amount: number;
+}
+
+export default function PaymentExecution({ voucher }: { voucher: Voucher }) {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState('BANK_TRANSFER');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -29,7 +34,11 @@ export default function PaymentExecution({ voucher }) {
 
       router.push('/payments');
     } catch (err) {
-      setError(err.message || 'Payment processing failed');
+      if (err instanceof Error) {
+        setError(err.message || 'Payment processing failed');
+      } else {
+        setError('Payment processing failed');
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -44,10 +53,14 @@ export default function PaymentExecution({ voucher }) {
         </div>
       )}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label
+          htmlFor="payment-method"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
           Payment Method
         </label>
         <select
+          id="payment-method"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           value={paymentMethod}
           onChange={(e) => setPaymentMethod(e.target.value)}

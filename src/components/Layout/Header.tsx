@@ -1,6 +1,6 @@
 // src/components/Layout/Header.tsx
 import { signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
+//import Link from 'next/link';
 
 export default function Header() {
   const { data: session } = useSession();
@@ -12,7 +12,7 @@ export default function Header() {
         <div className="flex items-center space-x-4">
           {session && (
             <>
-              <span className="text-sm text-gray-500">Hello, {session.user.name}</span>
+              <span className="text-sm text-gray-500">Hello, {session.user?.name || 'Guest'}</span>
               <button
                 onClick={() => signOut()}
                 className="text-sm text-indigo-600 hover:text-indigo-800"

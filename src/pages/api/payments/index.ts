@@ -1,11 +1,13 @@
 import { getSession } from 'next-auth/react';
+import { Session } from 'next-auth';
 import prisma from '../../../lib/db';
 
-export default async function handler(req, res) {
-  const session = await getSession({ req });
+import { NextApiRequest, NextApiResponse } from 'next';
+
+  export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const session = await getSession({ req }) as Session & { user: { id: string } };
 
   if (!session || session.user.role !== 'FINANCE_OFFICER') {
-    return res.status(403).json({ error: 'Unauthorized' });
   }
 
   if (req.method === 'GET') {
@@ -25,7 +27,7 @@ export default async function handler(req, res) {
       });
 
       return res.status(200).json(payments);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else if (req.method === 'POST') {
@@ -48,7 +50,7 @@ export default async function handler(req, res) {
       });
 
       return res.status(201).json(payment);
-    } catch (error) {
+    } catch {
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else {

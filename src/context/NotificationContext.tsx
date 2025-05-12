@@ -1,15 +1,35 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 
-const NotificationContext = createContext({
+interface Notification {
+  id: string;
+  read: boolean;
+  [key: string]: string | number | boolean | null | undefined; // Add other properties as needed
+}
+
+interface NotificationContextType {
+  notifications: Notification[];
+  unreadCount: number;
+  markAsRead: (id: string) => void;
+}
+
+const NotificationContext = createContext<NotificationContextType>({
   notifications: [],
   unreadCount: 0,
   markAsRead: () => {},
 });
 
-export function NotificationProvider({ children }) {
+import { ReactNode } from 'react';
+
+export function NotificationProvider({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
-  const [notifications, setNotifications] = useState([]);
+  interface Notification {
+    id: string;
+    read: boolean;
+    [key: string]: string | number | boolean | null | undefined; // Add other properties as needed
+  }
+
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -29,10 +49,9 @@ export function NotificationProvider({ children }) {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000); // Poll every 30 seconds
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval); // Cleanup interval on unmount
   }, [session]);
-
-  const markAsRead = async (id) => {
+  const markAsRead = async (id: string) => {
     try {
       await fetch(`/api/notifications/${id}`, { method: 'PATCH' });
       setNotifications(notifications.map(n => 
