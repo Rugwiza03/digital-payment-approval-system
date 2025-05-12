@@ -27,4 +27,5 @@
     "eslint-config-next": "15.3.2",
     "typescript": "^5.8.3"
   }
+  
 }
