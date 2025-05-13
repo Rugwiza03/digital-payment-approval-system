@@ -1,22 +1,33 @@
 import { getSession } from 'next-auth/react';
-
-// The Session type extension is already defined in another file
 import prisma from '../../../lib/db';
-
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req });
 
-  if (!session || session.user.role !== 'HOD') {
-    return res.status(403).json({ error: 'Unauthorized' });
+  if (!session || !session.user?.email) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // Fetch the full user data including role and departmentId
+  const user = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: {
+      id: true,
+      role: true,
+      departmentId: true
+    }
+  });
+
+  if (!user || user.role !== 'HOD') {
+    return res.status(403).json({ error: 'Forbidden' });
   }
 
   if (req.method === 'GET') {
     try {
       const requisitions = await prisma.requisition.findMany({
         where: {
-          departmentId: session.user.departmentId!, // Add non-null assertion if you are sure it exists
+          departmentId: user.departmentId,
           status: 'SUBMITTED',
         },
         include: {
@@ -26,7 +37,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       return res.status(200).json(requisitions);
-    } catch {
+    } catch (err) {
+      console.error(err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else {

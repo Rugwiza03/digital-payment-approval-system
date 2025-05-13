@@ -1,31 +1,35 @@
 // pages/api/requisitions/index.ts
 import { getSession } from 'next-auth/react';
 import prisma from '../../../lib/db';
-
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getSession({ req });
 
-  if (session && session.user) {
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true, departmentId: true }
-    });
-    session.user = { ...session.user, id: user?.id || '', departmentId: user?.departmentId || null, role: session.user.role || '' } as typeof session.user & { id: string; departmentId: string | null; role: string };
-  }
-
-  if (!session) {
+  if (!session || !session.user?.email) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  const userRecord = await prisma.user.findUnique({
+    where: { email: session.user.email },
+    select: { id: true, departmentId: true, role: true }
+  });
+
+  if (!userRecord) {
+    return res.status(403).json({ error: 'User not found' });
+  }
+
+  const userId = userRecord.id;
+  const departmentId = userRecord.departmentId;
+  const role = userRecord.role;
 
   if (req.method === 'GET') {
     try {
       let requisitions;
-      
-      if (session.user.role === 'USER') {
+
+      if (role === 'USER') {
         requisitions = await prisma.requisition.findMany({
-          where: { userId: session.user.id as string },
+          where: { userId },
           include: {
             user: true,
             department: true,
@@ -33,9 +37,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             voucher: true
           }
         });
-      } else if (session.user.role === 'HOD') {
+      } else if (role === 'HOD') {
         requisitions = await prisma.requisition.findMany({
-          where: { departmentId: session.user.departmentId },
+          where: { departmentId },
           include: {
             user: true,
             department: true,
@@ -48,7 +52,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       return res.status(200).json(requisitions);
-    } catch {
+    } catch (err) {
+      console.error(err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else if (req.method === 'POST') {
@@ -61,13 +66,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           amount: parseFloat(amount),
           urgent: Boolean(urgent),
           status: 'DRAFT',
-          userId: session.user.id,
-          departmentId: session.user.departmentId || null
+          userId,
+          departmentId
         }
       });
 
       return res.status(201).json(newRequisition);
-    } catch (error) {
+    } catch (err) {
+      console.error(err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   } else {
