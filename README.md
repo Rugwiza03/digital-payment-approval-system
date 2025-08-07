@@ -26,7 +26,7 @@ git clone https://github.com/Rugwiza03/digital-payment-approval-system.git
 cd digital-payment-approval-system
 npm install
 ```
-
+                                                                                                                                                                                         
 Then start the development server:
 
 ```bash
