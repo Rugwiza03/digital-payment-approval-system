@@ -7,7 +7,7 @@ A modern, web-based platform for managing and approving digital payment requisit
 - Secure user authentication using **NextAuth.js**
 - Interactive dashboard for viewing and managing payment requisitions
 - Role-based access control for different user permissions
-- Dynamic requisition form with multi-step approval workflow
+- Dynamic requisition form with multi-step approval workflow 
 - Built with **Next.js**, **Prisma**, and **Tailwind CSS**
 
 ## 🛠 Tech Stack
